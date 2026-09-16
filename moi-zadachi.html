@@ -1,0 +1,738 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<title>Мои задачи</title>
+<meta name="description" content="Личный трекер задач и ежедневный отчёт о проделанной работе">
+<style id="pageStyle">
+:root{
+  --bg:#f1f4f2;
+  --surface:#ffffff;
+  --surface-2:#e8efe9;
+  --border:#d6ddd8;
+  --border-soft:#e3e9e4;
+  --ink:#152019;
+  --ink-dim:#57655d;
+  --ink-faint:#8b978e;
+  --accent:#1f6f56;
+  --accent-strong:#154b3b;
+  --accent-tint:#dcece4;
+  --accent-ink:#ffffff;
+  --status-new:#2f6da8;
+  --status-new-bg:#e3edf7;
+  --status-doing:#af7317;
+  --status-doing-bg:#f5ecd8;
+  --status-done:#5c7568;
+  --status-done-bg:#e7ede8;
+  --danger:#ab3a2c;
+  --danger-bg:#fbe8e4;
+  --danger-strong:#8f2e22;
+  --shadow:0 1px 2px rgba(21,32,25,.06),0 6px 20px -8px rgba(21,32,25,.18);
+  --radius-lg:16px;
+  --radius-md:10px;
+  --radius-sm:7px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101713;
+    --surface:#17201a;
+    --surface-2:#1d271f;
+    --border:#2b3830;
+    --border-soft:#243029;
+    --ink:#eaf1ec;
+    --ink-dim:#a9b8ae;
+    --ink-faint:#748077;
+    --accent:#4fa387;
+    --accent-strong:#7fc4ab;
+    --accent-tint:#1d3a30;
+    --accent-ink:#0b1410;
+    --status-new:#6fa5d6;
+    --status-new-bg:#1c2c3a;
+    --status-doing:#d9a34a;
+    --status-doing-bg:#3a2f18;
+    --status-done:#93a99b;
+    --status-done-bg:#212b24;
+    --danger:#e2695a;
+    --danger-bg:#3a201c;
+    --danger-strong:#f0897b;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -10px rgba(0,0,0,.5);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101713;
+  --surface:#17201a;
+  --surface-2:#1d271f;
+  --border:#2b3830;
+  --border-soft:#243029;
+  --ink:#eaf1ec;
+  --ink-dim:#a9b8ae;
+  --ink-faint:#748077;
+  --accent:#4fa387;
+  --accent-strong:#7fc4ab;
+  --accent-tint:#1d3a30;
+  --accent-ink:#0b1410;
+  --status-new:#6fa5d6;
+  --status-new-bg:#1c2c3a;
+  --status-doing:#d9a34a;
+  --status-doing-bg:#3a2f18;
+  --status-done:#93a99b;
+  --status-done-bg:#212b24;
+  --danger:#e2695a;
+  --danger-bg:#3a201c;
+  --danger-strong:#f0897b;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -10px rgba(0,0,0,.5);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:auto;min-height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Source Sans 3',system-ui,-apple-system,sans-serif;
+  font-size:15px;
+  line-height:1.5;
+  padding-left:16px;
+  padding-right:16px;
+}
+h1,h2,h3{font-family:'Manrope',system-ui,sans-serif;margin:0;text-wrap:balance}
+button{font-family:inherit}
+.shell{max-width:760px;margin:0 auto;padding-bottom:64px}
+a{color:var(--accent)}
+
+/* top bar */
+.topbar{
+  padding-top:calc(28px + env(safe-area-inset-top,0px));
+  padding-bottom:18px;
+  border-bottom:1px solid var(--border-soft);
+}
+.topbar-inner{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px}
+.brand h1{font-size:26px;font-weight:800;letter-spacing:-.01em;color:var(--ink)}
+.brand .tagline{margin:4px 0 0;color:var(--ink-dim);font-size:13.5px}
+.summary{display:flex;gap:8px;flex-wrap:wrap}
+.summary .chip{
+  display:flex;flex-direction:column;align-items:flex-start;gap:1px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);
+  padding:7px 12px;min-width:66px;
+}
+.summary .chip b{font-family:'Manrope',sans-serif;font-size:18px;font-variant-numeric:tabular-nums;line-height:1.1}
+.summary .chip span{font-size:10.5px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.04em}
+.summary .chip.doing b{color:var(--status-doing)}
+.summary .chip.done b{color:var(--status-done)}
+
+/* panels */
+.content{display:flex;flex-direction:column;gap:34px;margin-top:30px}
+.panel-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.panel-head h2{font-size:19px;font-weight:700}
+
+.weeknav{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.weeknav .navbtn{
+  border:1px solid var(--border);background:var(--surface);color:var(--ink);
+  border-radius:var(--radius-sm);width:30px;height:30px;font-size:15px;cursor:pointer;line-height:1;
+}
+.weeknav .navbtn:hover{background:var(--surface-2)}
+.weeknav .todaybtn{
+  border:1px solid var(--border);background:var(--surface);color:var(--ink);
+  border-radius:var(--radius-sm);padding:0 12px;height:30px;font-size:13px;cursor:pointer;font-weight:600;
+}
+.weeknav .todaybtn:hover{background:var(--surface-2)}
+.weeklabel{font-size:13px;color:var(--ink-dim);min-width:130px}
+.weekcount{font-size:12.5px;color:var(--ink-faint)}
+
+.quick-add{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.quick-add input[type=text]{
+  flex:1 1 220px;min-width:0;
+  border:1px solid var(--border);background:var(--surface);color:var(--ink);
+  border-radius:var(--radius-md);padding:10px 13px;font-size:14.5px;
+}
+.quick-add input[type=date]{
+  border:1px solid var(--border);background:var(--surface);color:var(--ink);
+  border-radius:var(--radius-md);padding:10px 10px;font-size:13.5px;font-variant-numeric:tabular-nums;
+}
+.quick-add input:focus,.field input:focus,.field textarea:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px}
+.quick-add button{
+  border:none;background:var(--accent);color:var(--accent-ink);
+  border-radius:var(--radius-md);padding:0 18px;font-size:14.5px;font-weight:700;cursor:pointer;
+}
+.quick-add button:hover{background:var(--accent-strong)}
+
+.filters{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.filters button{
+  border:1px solid var(--border);background:var(--surface);color:var(--ink-dim);
+  border-radius:999px;padding:6px 13px;font-size:12.5px;cursor:pointer;font-weight:600;
+  display:flex;align-items:center;gap:6px;
+}
+.filters button b{font-variant-numeric:tabular-nums;color:var(--ink-faint);font-weight:700}
+.filters button.active{background:var(--accent-tint);border-color:var(--accent);color:var(--accent-strong)}
+.filters button.active b{color:var(--accent-strong)}
+
+/* diary days */
+.diary-days{display:flex;flex-direction:column;gap:10px}
+.day{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:14px 16px;
+}
+.day.is-today{border-color:var(--accent)}
+.day-head{display:flex;align-items:baseline;gap:9px;margin-bottom:10px}
+.day-name{font-family:'Manrope',sans-serif;font-weight:700;font-size:14.5px}
+.day.is-today .day-name{color:var(--accent-strong)}
+.day-date{font-size:12.5px;color:var(--ink-faint);font-variant-numeric:tabular-nums}
+.day-empty{font-size:13px;color:var(--ink-faint);font-style:italic;padding:2px 0}
+.day-entries{display:flex;flex-direction:column;gap:8px}
+
+/* cards (shared: daily entry + task) */
+.card{
+  background:var(--surface-2);border:1px solid var(--border-soft);border-left:3px solid transparent;
+  border-radius:var(--radius-md);padding:10px 12px;
+}
+.card.overdue{border-left-color:var(--danger);background:var(--danger-bg)}
+.card-top{display:flex;align-items:flex-start;gap:8px}
+.card-title{
+  flex:1;font-size:14.5px;font-weight:600;color:var(--ink);cursor:text;
+  padding:1px 3px;margin:-1px -3px;border-radius:5px;
+}
+.card-title:focus{outline:2px solid var(--accent);background:var(--surface)}
+.card.status-done .card-title{color:var(--ink-faint);font-weight:500}
+select.statusSelect{
+  border:1px solid var(--border);border-radius:999px;font-size:11.5px;font-weight:700;
+  padding:4px 8px 4px 9px;cursor:pointer;background:var(--status-new-bg);color:var(--status-new);
+}
+select.statusSelect[data-status="doing"]{background:var(--status-doing-bg);color:var(--status-doing)}
+select.statusSelect[data-status="done"]{background:var(--status-done-bg);color:var(--status-done)}
+.delbtn{
+  border:1px solid var(--border);background:var(--surface);color:var(--ink-faint);
+  width:24px;height:24px;border-radius:50%;font-size:12px;cursor:pointer;flex:none;line-height:1;
+}
+.delbtn:hover{border-color:var(--danger);color:var(--danger)}
+.delbtn.confirm{background:var(--danger);border-color:var(--danger);color:#fff;font-weight:700}
+
+.meta-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.meta-chip{
+  display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--ink-dim);
+  background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:3px 9px;
+}
+.meta-chip.due{font-variant-numeric:tabular-nums}
+.meta-chip.due.overdue{color:var(--danger-strong);border-color:var(--danger);background:var(--danger-bg)}
+.meta-chip .x{cursor:pointer;color:var(--ink-faint);font-size:12px;margin-left:1px}
+.meta-chip .x:hover{color:var(--danger)}
+.addbtn{
+  border:1px dashed var(--border);background:transparent;color:var(--ink-faint);
+  border-radius:999px;padding:3px 10px;font-size:12px;cursor:pointer;
+}
+.addbtn:hover{color:var(--accent);border-color:var(--accent)}
+.inline-date{border:1px solid var(--accent);border-radius:7px;padding:3px 6px;font-size:12px;background:var(--surface);color:var(--ink)}
+.inline-text{border:1px solid var(--accent);border-radius:7px;padding:3px 8px;font-size:12.5px;background:var(--surface);color:var(--ink);min-width:150px}
+
+.note-box,.comment-box{margin-top:8px}
+.note-box textarea,.comment-box textarea{
+  width:100%;min-height:52px;resize:vertical;border:1px solid var(--border);border-radius:8px;
+  padding:8px 10px;font-size:13.5px;font-family:inherit;background:var(--surface);color:var(--ink);
+}
+.note-text,.comment-text{
+  margin-top:8px;font-size:13.5px;color:var(--ink-dim);white-space:pre-wrap;background:var(--surface);
+  border:1px solid var(--border-soft);border-radius:8px;padding:8px 10px;cursor:text;
+}
+.created-date{font-size:11px;color:var(--ink-faint);margin-top:2px}
+
+/* tasks list */
+.task-list{display:flex;flex-direction:column;gap:8px}
+.empty-state{
+  text-align:center;padding:36px 16px;color:var(--ink-faint);font-size:14px;
+  border:1px dashed var(--border);border-radius:var(--radius-lg);
+}
+
+/* save bar */
+.savebar{
+  margin-top:36px;padding:10px 4px calc(10px + env(safe-area-inset-bottom,0px));
+  text-align:center;font-size:12px;color:var(--ink-faint);border-top:1px solid var(--border-soft);
+}
+.savebar.saving{color:var(--accent)}
+.savebar.warn{color:var(--danger)}
+
+@media (max-width:560px){
+  .topbar-inner{flex-direction:column;align-items:flex-start}
+  .card-top{flex-wrap:wrap}
+  .weeklabel{min-width:0}
+}
+@media (max-width:460px){
+  body{padding-left:12px;padding-right:12px}
+  .day{padding:12px}
+  .brand h1{font-size:22px}
+}
+</style>
+
+<div class="shell" id="app"></div>
+
+<script id="appData" type="application/json">
+{
+  "tasks": [
+    {"id": 2, "title": "Составить отчёты по командировкам за 2026 год", "note": "", "due": "2026-09-18", "requester": "Раушан Е.", "status": "todo", "createdAt": "2026-09-16T07:02:31.027Z"},
+    {"id": 3, "title": "Согласовать закупку расходных материалов для отделения", "note": "Нужна виза главного врача до пятницы.", "due": "2026-09-17", "requester": "Гульмира С.", "status": "doing", "createdAt": "2026-09-15T06:40:00.000Z"},
+    {"id": 4, "title": "Обновить список контактов филиалов", "note": "", "due": "", "requester": "", "status": "todo", "createdAt": "2026-09-14T05:10:00.000Z"},
+    {"id": 5, "title": "Подготовить документы для внешнего эксперта", "note": "Скан паспорта и договор отправлены на почту.", "due": "2026-09-10", "requester": "Айгуль Т.", "status": "done", "createdAt": "2026-09-08T05:00:00.000Z"}
+  ],
+  "daily": [
+    {"id": 18, "title": "Участие в обучении по Vibe Coding", "status": "done", "person": "Пивоварова Ирина Алексеевна", "due": "", "comment": "", "date": "2026-09-16", "createdAt": "2026-09-16T11:07:18.408Z"},
+    {"id": 19, "title": "Созвон с филиалом в Караганде по закупке", "status": "done", "person": "Гульмира С.", "due": "", "comment": "Согласовали список позиций.", "date": "2026-09-15", "createdAt": "2026-09-15T09:20:00.000Z"},
+    {"id": 20, "title": "Проверить заявки от внешних экспертов", "status": "doing", "person": "", "due": "", "comment": "", "date": "2026-09-16", "createdAt": "2026-09-16T08:00:00.000Z"}
+  ],
+  "nextId": 21
+}
+</script>
+
+<script id="appScript">
+(function(){
+  'use strict';
+
+  var dataEl = document.getElementById('appData');
+  var state;
+  try { state = JSON.parse(dataEl.textContent); } catch(e){ state = {tasks:[],daily:[],nextId:1}; }
+  if(!state.tasks) state.tasks = [];
+  if(!state.daily) state.daily = [];
+  if(!state.nextId) state.nextId = 1;
+
+  var STATUS_LABEL = {todo:'Новая', doing:'В работе', done:'Готово'};
+  var STATUS_ORDER = {doing:0, todo:1, done:2};
+  var WEEKDAY_NAMES = ['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота','Воскресенье'];
+  var MONTH_SHORT = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+
+  var weekOffset = 0;
+  var taskFilter = 'all';
+  var openFields = {};      // key "type:id:field" -> true while an optional field editor is expanded
+  var confirming = {};      // key "type:id" -> timeout id, while delete is in "confirm" state
+  var saveTimer = null;
+
+  function pad2(n){ return n<10 ? '0'+n : ''+n; }
+  function toISO(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+  function todayISO(){ return toISO(new Date()); }
+  function parseISO(s){ var p = s.split('-'); return new Date(+p[0], +p[1]-1, +p[2]); }
+  function fmtHuman(iso){ var d = parseISO(iso); return d.getDate()+' '+MONTH_SHORT[d.getMonth()]; }
+  function fmtHumanFull(iso){ var d = parseISO(iso); return d.getDate()+' '+MONTH_SHORT[d.getMonth()]+' '+d.getFullYear(); }
+  function startOfWeek(d){ var day=(d.getDay()+6)%7; var r=new Date(d.getFullYear(),d.getMonth(),d.getDate()); r.setDate(r.getDate()-day); return r; }
+  function weekDates(offset){
+    var base = new Date();
+    base.setDate(base.getDate() + offset*7);
+    var start = startOfWeek(base);
+    var out = [];
+    for(var i=0;i<7;i++){ var d=new Date(start); d.setDate(start.getDate()+i); out.push(toISO(d)); }
+    return out;
+  }
+  function escapeHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function uid(){ return state.nextId++; }
+  function isOverdue(item){ return item.status !== 'done' && item.due && item.due < todayISO(); }
+
+  function sortTasks(list){
+    return list.slice().sort(function(a,b){
+      var so = STATUS_ORDER[a.status]-STATUS_ORDER[b.status];
+      if(so !== 0) return so;
+      var ad = a.due || '9999-99-99', bd = b.due || '9999-99-99';
+      if(ad !== bd) return ad < bd ? -1 : 1;
+      return a.createdAt < b.createdAt ? -1 : 1;
+    });
+  }
+  function sortDaily(list){
+    return list.slice().sort(function(a,b){
+      var ao = isOverdue(a) ? 0 : 1, bo = isOverdue(b) ? 0 : 1;
+      if(ao !== bo) return ao-bo;
+      return a.createdAt < b.createdAt ? -1 : 1;
+    });
+  }
+
+  function findItem(type, id){
+    var arr = type === 'task' ? state.tasks : state.daily;
+    for(var i=0;i<arr.length;i++){ if(arr[i].id === id) return arr[i]; }
+    return null;
+  }
+  function removeItem(type, id){
+    var arr = type === 'task' ? state.tasks : state.daily;
+    var idx = -1;
+    for(var i=0;i<arr.length;i++){ if(arr[i].id === id){ idx=i; break; } }
+    if(idx > -1) arr.splice(idx,1);
+  }
+
+  /* ---------- rendering ---------- */
+
+  function statusSelectHtml(type,id,status){
+    var opts = ['todo','doing','done'].map(function(s){
+      return '<option value="'+s+'"'+(s===status?' selected':'')+'>'+STATUS_LABEL[s]+'</option>';
+    }).join('');
+    return '<select class="statusSelect" data-status="'+status+'" data-action="status-change" data-type="'+type+'" data-id="'+id+'">'+opts+'</select>';
+  }
+
+  function delBtnHtml(type,id,confirming){
+    var key = type+':'+id;
+    var isConfirm = !!confirming[key];
+    return '<button type="button" class="delbtn'+(isConfirm?' confirm':'')+'" data-action="delete" data-type="'+type+'" data-id="'+id+'" title="Удалить">'+(isConfirm?'✕?':'✕')+'</button>';
+  }
+
+  function dueChipHtml(type,id,due,openFields){
+    var key = type+':'+id+':due';
+    if(openFields[key]){
+      return '<span class="meta-chip"><input type="date" class="inline-date" data-action="commit-field" data-field="due" data-type="'+type+'" data-id="'+id+'" value="'+escapeHtml(due||'')+'" autofocus></span>';
+    }
+    if(due){
+      var overdueCls = (findItem(type,id) && isOverdue(findItem(type,id))) ? ' overdue' : '';
+      return '<span class="meta-chip due'+overdueCls+'" data-action="open-field" data-field="due" data-type="'+type+'" data-id="'+id+'">'+
+        '⏰ '+fmtHuman(due)+(overdueCls?' · просрочено':'')+
+        '<span class="x" data-action="clear-field" data-field="due" data-type="'+type+'" data-id="'+id+'">×</span></span>';
+    }
+    return '<button type="button" class="addbtn" data-action="open-field" data-field="due" data-type="'+type+'" data-id="'+id+'">+ срок</button>';
+  }
+
+  function textChipHtml(type,id,field,value,placeholderBtn,label,openFields){
+    var key = type+':'+id+':'+field;
+    if(openFields[key]){
+      return '<span class="meta-chip"><input type="text" class="inline-text" maxlength="120" data-action="commit-field" data-field="'+field+'" data-type="'+type+'" data-id="'+id+'" value="'+escapeHtml(value||'')+'" placeholder="'+escapeHtml(label)+'" autofocus></span>';
+    }
+    if(value){
+      return '<span class="meta-chip" data-action="open-field" data-field="'+field+'" data-type="'+type+'" data-id="'+id+'">👤 '+escapeHtml(value)+
+        '<span class="x" data-action="clear-field" data-field="'+field+'" data-type="'+type+'" data-id="'+id+'">×</span></span>';
+    }
+    return '<button type="button" class="addbtn" data-action="open-field" data-field="'+field+'" data-type="'+type+'" data-id="'+id+'">'+placeholderBtn+'</button>';
+  }
+
+  function longTextHtml(type,id,field,value,placeholderBtn,openFields){
+    var key = type+':'+id+':'+field;
+    if(openFields[key] || value){
+      return '<div class="'+(field==='comment'?'comment-box':'note-box')+'">'+
+        '<textarea data-action="commit-field" data-field="'+field+'" data-type="'+type+'" data-id="'+id+'" placeholder="Детали…"'+(openFields[key]?' autofocus':'')+'>'+escapeHtml(value||'')+'</textarea></div>';
+    }
+    return '<button type="button" class="addbtn" data-action="open-field" data-field="'+field+'" data-type="'+type+'" data-id="'+id+'">'+placeholderBtn+'</button>';
+  }
+
+  function taskCardHtml(t, openFields, confirming){
+    var overdue = isOverdue(t);
+    return '<div class="card status-'+t.status+(overdue?' overdue':'')+'" data-type="task" data-id="'+t.id+'">'+
+      '<div class="card-top">'+
+        '<div class="card-title" contenteditable="true" data-action="commit-field" data-field="title" data-type="task" data-id="'+t.id+'">'+escapeHtml(t.title)+'</div>'+
+        statusSelectHtml('task',t.id,t.status)+
+        delBtnHtml('task',t.id,confirming)+
+      '</div>'+
+      '<div class="meta-row">'+
+        dueChipHtml('task',t.id,t.due,openFields)+
+        textChipHtml('task',t.id,'requester',t.requester,'+ кто поручил','Кто поручил',openFields)+
+      '</div>'+
+      longTextHtml('task',t.id,'note',t.note,'+ заметка',openFields)+
+      '<div class="created-date">Создано '+fmtHumanFull(t.createdAt.slice(0,10))+'</div>'+
+    '</div>';
+  }
+
+  function dailyCardHtml(e, openFields, confirming){
+    var overdue = isOverdue(e);
+    return '<div class="card status-'+e.status+(overdue?' overdue':'')+'" data-type="daily" data-id="'+e.id+'">'+
+      '<div class="card-top">'+
+        '<div class="card-title" contenteditable="true" data-action="commit-field" data-field="title" data-type="daily" data-id="'+e.id+'">'+escapeHtml(e.title)+'</div>'+
+        statusSelectHtml('daily',e.id,e.status)+
+        delBtnHtml('daily',e.id,confirming)+
+      '</div>'+
+      '<div class="meta-row">'+
+        dueChipHtml('daily',e.id,e.due,openFields)+
+        textChipHtml('daily',e.id,'person',e.person,'+ кто поручил / с кем работаю','Кто поручил / с кем работаю',openFields)+
+      '</div>'+
+      longTextHtml('daily',e.id,'comment',e.comment,'+ комментарий',openFields)+
+    '</div>';
+  }
+
+  function pluralRu(n,one,few,many){
+    var mod10=n%10, mod100=n%100;
+    if(mod10===1 && mod100!==11) return one;
+    if(mod10>=2 && mod10<=4 && (mod100<10 || mod100>=20)) return few;
+    return many;
+  }
+
+  function summaryHtml(){
+    var total = state.tasks.length;
+    var doing = state.tasks.filter(function(t){return t.status==='doing';}).length;
+    var done = state.tasks.filter(function(t){return t.status==='done';}).length;
+    return '<div class="chip"><b>'+total+'</b><span>Всего</span></div>'+
+      '<div class="chip doing"><b>'+doing+'</b><span>В работе</span></div>'+
+      '<div class="chip done"><b>'+done+'</b><span>Готово</span></div>';
+  }
+
+  function weekNavHtml(weekOffset){
+    var dates = weekDates(weekOffset);
+    var weekEntries = state.daily.filter(function(e){ return dates.indexOf(e.date) > -1; });
+    var doneCount = weekEntries.filter(function(e){ return e.status==='done'; }).length;
+    var label = fmtHuman(dates[0])+' – '+fmtHumanFull(dates[6]);
+    return '<button type="button" class="navbtn" data-action="week-prev" aria-label="Предыдущая неделя">‹</button>'+
+      '<button type="button" class="todaybtn" data-action="week-today">Сегодня</button>'+
+      '<button type="button" class="navbtn" data-action="week-next" aria-label="Следующая неделя">›</button>'+
+      '<span class="weeklabel">'+label+'</span>'+
+      '<span class="weekcount">'+weekEntries.length+' запис'+pluralRu(weekEntries.length,'ь','и','ей')+' за неделю, '+doneCount+' готово</span>';
+  }
+
+  function diaryHtml(weekOffset, openFields, confirming){
+    var dates = weekDates(weekOffset);
+    return dates.map(function(iso){
+      var entries = sortDaily(state.daily.filter(function(e){ return e.date === iso; }));
+      var d = parseISO(iso);
+      var isToday = iso === todayISO();
+      var body = entries.length
+        ? '<div class="day-entries">'+entries.map(function(e){ return dailyCardHtml(e, openFields, confirming); }).join('')+'</div>'
+        : '<div class="day-empty">Нет записей</div>';
+      return '<div class="day'+(isToday?' is-today':'')+'">'+
+        '<div class="day-head"><span class="day-name">'+WEEKDAY_NAMES[(d.getDay()+6)%7]+'</span><span class="day-date">'+fmtHumanFull(iso)+'</span></div>'+
+        body+
+      '</div>';
+    }).join('');
+  }
+
+  function filtersHtml(taskFilter){
+    var counts = {all:state.tasks.length, todo:0, doing:0, done:0};
+    state.tasks.forEach(function(t){ counts[t.status]++; });
+    var defs = [['all','Все'],['todo','Новые'],['doing','В работе'],['done','Готово']];
+    return defs.map(function(d){
+      return '<button type="button" class="'+(taskFilter===d[0]?'active':'')+'" data-action="set-filter" data-filter="'+d[0]+'">'+d[1]+' <b>'+counts[d[0]]+'</b></button>';
+    }).join('');
+  }
+
+  function tasksHtml(taskFilter, openFields, confirming){
+    var list = sortTasks(state.tasks.filter(function(t){ return taskFilter==='all' || t.status===taskFilter; }));
+    return list.length
+      ? list.map(function(t){ return taskCardHtml(t, openFields, confirming); }).join('')
+      : '<div class="empty-state">Задач нет. Добавьте первую строкой выше.</div>';
+  }
+
+  function topbarHtml(){
+    return '<header class="topbar"><div class="topbar-inner">'+
+      '<div class="brand"><h1>Мои задачи</h1><p class="tagline">Задачи и ежедневный отчёт о работе</p></div>'+
+      '<div class="summary">'+summaryHtml()+'</div>'+
+    '</div></header>';
+  }
+
+  function mainHtml(weekOffset, taskFilter, openFields, confirming){
+    return '<main class="content">'+
+      '<section aria-label="Ежедневник">'+
+        '<div class="panel-head"><h2>Ежедневник</h2><div class="weeknav">'+weekNavHtml(weekOffset)+'</div></div>'+
+        '<form class="quick-add" data-form="daily">'+
+          '<input type="text" data-role="daily-title" placeholder="Что сделали?" maxlength="300" autocomplete="off">'+
+          '<input type="date" data-role="daily-date" value="'+todayISO()+'">'+
+          '<button type="submit">Добавить</button>'+
+        '</form>'+
+        '<div class="diary-days">'+diaryHtml(weekOffset, openFields, confirming)+'</div>'+
+      '</section>'+
+      '<section aria-label="Задачи">'+
+        '<div class="panel-head"><h2>Задачи</h2></div>'+
+        '<form class="quick-add" data-form="task">'+
+          '<input type="text" data-role="task-title" placeholder="Новая задача…" maxlength="300" autocomplete="off">'+
+          '<button type="submit">Добавить</button>'+
+        '</form>'+
+        '<div class="filters">'+filtersHtml(taskFilter)+'</div>'+
+        '<div class="task-list">'+tasksHtml(taskFilter, openFields, confirming)+'</div>'+
+      '</section>'+
+    '</main>';
+  }
+
+  function footerHtml(){
+    return '<footer class="savebar" id="saveBar">Изменения сохранены автоматически</footer>';
+  }
+
+  function appShellHtml(weekOffset, taskFilter, openFields, confirming){
+    return topbarHtml() + mainHtml(weekOffset, taskFilter, openFields, confirming) + footerHtml();
+  }
+
+  function render(){
+    document.getElementById('app').innerHTML = appShellHtml(weekOffset, taskFilter, openFields, confirming);
+  }
+
+  /* ---------- mutations ---------- */
+
+  function addTask(title){
+    title = title.trim();
+    if(!title) return;
+    state.tasks.push({id:uid(), title:title, note:'', due:'', requester:'', status:'todo', createdAt:new Date().toISOString()});
+    render(); scheduleSave();
+  }
+  function addDaily(title, date){
+    title = title.trim();
+    if(!title) return;
+    date = date || todayISO();
+    state.daily.push({id:uid(), title:title, status:'todo', person:'', due:'', comment:'', date:date, createdAt:new Date().toISOString()});
+    render(); scheduleSave();
+  }
+  function setField(type,id,field,value){
+    var item = findItem(type,id);
+    if(!item) return;
+    if(field === 'title'){ value = value.trim(); if(!value) value = item.title; }
+    item[field] = value;
+  }
+
+  /* ---------- events ---------- */
+
+  var app = document.getElementById('app');
+
+  app.addEventListener('submit', function(ev){
+    var form = ev.target.closest('form[data-form]');
+    if(!form) return;
+    ev.preventDefault();
+    var kind = form.getAttribute('data-form');
+    if(kind === 'task'){
+      addTask(form.querySelector('[data-role="task-title"]').value);
+      var taskInput = app.querySelector('[data-role="task-title"]');
+      if(taskInput) taskInput.focus();
+    } else if(kind === 'daily'){
+      addDaily(form.querySelector('[data-role="daily-title"]').value, form.querySelector('[data-role="daily-date"]').value);
+      var dailyInput = app.querySelector('[data-role="daily-title"]');
+      if(dailyInput) dailyInput.focus();
+    }
+  });
+
+  app.addEventListener('click', function(ev){
+    var el = ev.target.closest('[data-action]');
+    if(!el) return;
+    var action = el.getAttribute('data-action');
+    var type = el.getAttribute('data-type');
+    var id = el.getAttribute('data-id') ? +el.getAttribute('data-id') : null;
+
+    if(action === 'week-prev'){ weekOffset--; render(); return; }
+    if(action === 'week-next'){ weekOffset++; render(); return; }
+    if(action === 'week-today'){ weekOffset = 0; render(); return; }
+
+    if(action === 'set-filter'){ taskFilter = el.getAttribute('data-filter'); render(); return; }
+
+    if(action === 'open-field'){
+      var field = el.getAttribute('data-field');
+      openFields[type+':'+id+':'+field] = true;
+      render();
+      var sel = '[data-type="'+type+'"][data-id="'+id+'"][data-field="'+field+'"]';
+      var target = app.querySelector('.inline-date'+sel+',.inline-text'+sel+',textarea'+sel);
+      if(target) target.focus();
+      return;
+    }
+    if(action === 'clear-field'){
+      var field2 = el.getAttribute('data-field');
+      setField(type,id,field2,'');
+      delete openFields[type+':'+id+':'+field2];
+      render(); scheduleSave();
+      return;
+    }
+    if(action === 'delete'){
+      var key = type+':'+id;
+      if(confirming[key]){
+        clearTimeout(confirming[key]);
+        delete confirming[key];
+        removeItem(type,id);
+        render(); scheduleSave();
+      } else {
+        confirming[key] = setTimeout(function(){ delete confirming[key]; render(); }, 2500);
+        render();
+      }
+      return;
+    }
+  });
+
+  app.addEventListener('change', function(ev){
+    var el = ev.target;
+    var action = el.getAttribute('data-action');
+    if(action === 'status-change'){
+      setField(el.getAttribute('data-type'), +el.getAttribute('data-id'), 'status', el.value);
+      render(); scheduleSave();
+      return;
+    }
+    if(action === 'commit-field' && el.tagName === 'INPUT' && el.type === 'date'){
+      var type = el.getAttribute('data-type'), id = +el.getAttribute('data-id');
+      setField(type,id,'due', el.value);
+      delete openFields[type+':'+id+':due'];
+      render(); scheduleSave();
+    }
+  });
+
+  app.addEventListener('focusout', function(ev){
+    var el = ev.target;
+    var action = el.getAttribute && el.getAttribute('data-action');
+    if(action !== 'commit-field') return;
+    var type = el.getAttribute('data-type'), id = +el.getAttribute('data-id'), field = el.getAttribute('data-field');
+    var value = el.tagName === 'DIV' ? el.textContent : el.value;
+    setField(type,id,field,value);
+    if((field === 'requester' || field === 'person') && el.tagName === 'INPUT'){
+      delete openFields[type+':'+id+':'+field];
+    }
+    if((field === 'note' || field === 'comment') && el.tagName === 'TEXTAREA' && !value.trim()){
+      delete openFields[type+':'+id+':'+field];
+    }
+    render(); scheduleSave();
+  }, true);
+
+  app.addEventListener('keydown', function(ev){
+    var el = ev.target;
+    if(ev.key === 'Enter' && el.getAttribute && el.getAttribute('data-field') === 'title' && el.getAttribute('data-action') === 'commit-field'){
+      ev.preventDefault();
+      el.blur();
+    }
+    if(ev.key === 'Enter' && el.tagName === 'INPUT' && el.type === 'text' && el.getAttribute('data-action') === 'commit-field'){
+      ev.preventDefault();
+      el.blur();
+    }
+  });
+
+  /* ---------- persistence ---------- */
+
+  function buildFullHtml(){
+    var styleTag = document.getElementById('pageStyle').outerHTML;
+    var scriptTag = document.getElementById('appScript').outerHTML;
+    var safeJson = JSON.stringify(state).replace(/</g, '\\u003c');
+    var dataTag = '<script id="appData" type="application/json">'+safeJson+'<\/script>';
+    var shellHtml = '<div class="shell" id="app">'+appShellHtml(0,'all',{},{})+'</div>';
+    return '<!doctype html>\n'+
+      '<html lang="ru">\n'+
+      '<head>\n'+
+      '<meta charset="utf-8">\n'+
+      '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'+
+      '<link rel="preconnect" href="https://fonts.googleapis.com">\n'+
+      '<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">\n'+
+      '<title>Мои задачи</title>\n'+
+      '<meta name="description" content="Личный трекер задач и ежедневный отчёт о проделанной работе">\n'+
+      styleTag+'\n'+
+      '</head>\n'+
+      '<body>\n'+
+      shellHtml+'\n'+
+      dataTag+'\n'+
+      scriptTag+'\n'+
+      '</body>\n'+
+      '</html>';
+  }
+
+  function setSaveBar(text, cls){
+    var bar = document.getElementById('saveBar');
+    bar.textContent = text;
+    bar.className = 'savebar'+(cls?' '+cls:'');
+  }
+
+  function scheduleSave(){
+    setSaveBar('Сохранение…', 'saving');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(doSave, 600);
+  }
+
+  function doSave(){
+    if(!window.claude || typeof window.claude.use !== 'function'){
+      setSaveBar('Изменения сохранены только в этой сессии (нет доступа к Artifact)', 'warn');
+      return;
+    }
+    window.claude.use('artifact').then(function(api){
+      if(!api){
+        setSaveBar('Изменения сохранены только в этой сессии (нет доступа к Artifact)', 'warn');
+        return;
+      }
+      return api.publish(buildFullHtml()).then(function(){
+        setSaveBar('Изменения сохранены автоматически');
+      }, function(err){
+        if(err && err.code === 'conflict') return; // view is being reloaded to the newer version
+        if(err && (err.code === 'not_writer' || err.code === 'not_granted' || err.code === 'consent_required')){
+          setSaveBar('Только просмотр: изменения не будут сохранены', 'warn');
+          return;
+        }
+        setSaveBar('Не удалось сохранить, попробуйте ещё раз', 'warn');
+      });
+    });
+  }
+
+  /* ---------- init ---------- */
+
+  render();
+})();
+</script>
